@@ -45,7 +45,7 @@ def getAverageVolumeOver20Days(stockName):
     return twentyDayVolAvg / 20
 
  
-def findLastOrPLow(stock, curDay):
+def findData(stock, curDay,key):
      data = ()
      dayCount = 1
      check = False
@@ -56,33 +56,16 @@ def findLastOrPLow(stock, curDay):
          stockInfo = stock.get_historical(str(day), str(day))
          
          if stockInfo != []:
-             data = float(stockInfo[0]['Low']), day
+             data = float(stockInfo[0][key]), day
              check = True
          else:
             dayCount += 1
             
      return data
 
+def findP1Close(stock,curDay):
+    print " "
 
-def findP2ToP4Close(stock, curDay):
-    data = ()
-    dayCount = 1
-    check = False
-    
-    while check == False:
-        difference = datetime.timedelta(days = dayCount)
-        day = curDay[1] - difference
-        stockInfo = stock.get_historical(str(day), str(day))
-        
-        if stockInfo != []:
-            data = float(stockInfo[0]['Close']), day
-            check = True
-        else:
-           dayCount += 1
-           
-    return data
-#****************************************************    
-  
 #****************************************************
 # Last = This is the lowest price the stock traded at that day
 # PLow = Previous day's low
@@ -107,22 +90,24 @@ def pullBackSwingTradeFormula(stockName):
     #default tuple
     theDay = 0.0 , currentDay
     
-    Last = findLastOrPLow(stock,theDay)
-    PLow = findLastOrPLow(stock, Last)
+    Last = findData(stock, theDay, 'Low')
+    PLow = findData(stock, Last, 'Low')
     
     # P1Close is a special case because it
     # is on the same day as PLow
     stockInfo = stock.get_historical(str(PLow[1]), str(PLow[1]))
-    P1Close = float(stockInfo[0]['Close']), PLow[1]
+    if stockInfo == []:
+        P1Close = 0.0, PLow[1]
+    else:
+        P1Close = float(stockInfo[0]['Close']), PLow[1]
+
     
-    P2Close = findP2ToP4Close(stock, P1Close)
-    P3Close = findP2ToP4Close(stock, P2Close)
-    P4Close = findP2ToP4Close(stock, P3Close)
+    P2Close = findData(stock, P1Close,'Close')
+    P3Close = findData(stock, P2Close,'Close')
+    P4Close = findData(stock, P3Close,'Close')
     
     if (Last[0] > PLow[0]) and (P1Close[0] < P2Close[0]) and (P2Close[0] < P3Close[0]) and (P3Close[0] < P4Close[0]):
         print  "\(^_^)/ Made it through the formula  " ,stockName
-    else:
-        print stockName, " does not pass the formula  \(*_*)/"
 
 
 
@@ -135,6 +120,4 @@ largeStockList = createListOfStocks()
 for stock in largeStockList:
     avg = getAverageVolumeOver20Days(stock)
     if avg > 350000:
-       pullBackSwingTradeFormula(stock)
-    else:
-        print stock, " does not pass the formula  \(*_*)/"
+        pullBackSwingTradeFormula(stock)
