@@ -4,7 +4,6 @@ from pprint import pprint
 import finsymbols
 import time
 import datetime
-import csv
 
 # creates a list of stocks from a provided csv file
 def createListOfStocks():
@@ -17,31 +16,35 @@ def createListOfStocks():
     nasdaq = [stockInfo['symbol'].strip() for stockInfo in initialNasdaq]
     amex = [stockInfo['symbol'].strip() for stockInfo in initialAmex]
     
-    return nyse + nasdaq + amex
+    return nasdaq
+
+
+# Returns current day and the 20th trading day before day.
+def getLast20TradingDays(stockName):
+    stock = Share(stockName)
+    currentDay = datetime.date.today()
+    difference = datetime.timedelta(days=100)
+    day = currentDay - difference
+
+    stockData = stock.get_historical(str(day),str(currentDay))
+    if stockData == []:
+        return 0
+    else:
+        return [stockData[0]['Date'], stockData[19]['Date']]
+
+
 
 
 # Average Volume over 20 days...
-def getAverageVolumeOver20Days(stockName):
+def getAverageVolumeOver20Days(stockName,cur_day,twenty_day):
     stock = Share(stockName)
-    currentDay = datetime.date.today()    
-    difference = datetime.timedelta(days=100)
-    day = currentDay - difference
-    
-    stockData = stock.get_historical(str(day),str(currentDay))
+    stockData = stock.get_historical(str(twenty_day),str(cur_day))
     
     twentyDayVolAvg = 0
-    count = 1
-
     if stockData == []:
         return 0       
     for date in stockData:
-        if count <= 20:
-            twentyDayVolAvg = twentyDayVolAvg + float(stockData[0]['Volume'])
-            count += 1
-        elif count > 20: 
-            # count is greater than 20 days so we want to exit the loop
-            break
-            
+            twentyDayVolAvg = twentyDayVolAvg + float(stockData[0]['Volume'])    
     return twentyDayVolAvg / 20
 
  
@@ -117,7 +120,13 @@ def pullBackSwingTradeFormula(stockName):
 # use instead of all 3
 largeStockList = createListOfStocks()
 
+# Use a random stock as a way to find the last 20 trading days
+# This makes it so we only have to get these dates one time, as
+# opposed to finding them every time we need to get the average.
+last20 = getLast20TradingDays('AAPL')
+
 for stock in largeStockList:
-    avg = getAverageVolumeOver20Days(stock)
+    avg = getAverageVolumeOver20Days(stock, last20[0],last20[1])
     if avg > 350000:
         pullBackSwingTradeFormula(stock)
+print "ITS FINISHED!"
