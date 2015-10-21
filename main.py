@@ -1,15 +1,7 @@
 import finsymbols
-
 from pprint import pprint
-
-
 from yahoo_finance import Share
-from pprint import pprint
 
-import finsymbols
-import time
-import datetime
-import csv
 
 # functions:
 #   get_amex_symbols()
