@@ -1,24 +1,30 @@
-import finsymbols
-from pprint import pprint
-from yahoo_finance import Share
+import stockformula
+import stockutilities
 
-
-# functions:
-#   get_amex_symbols()
-#   get_nyse_symbols()
-#   get_nasdaq_symbols()
-#   get_sp500_symbols()
-
-#nyse = finsymbols.get_nyse_symbols()
-#count = 0
-#for num in nyse:
-#    count += 1
-#    pprint(num)
-    
-
-#print count
 def main():
-    print "main stock loop goes in here............"
+    #***************************************************************
+    # combine all stock lists for now.
+    # I might make it possible to choose what list to
+    # use instead of all 3
+    largeStockList = stockutilities.createListOfStocks()
+
+    finalStockList = []
+    # Use a random stock as a way to find the last 20 trading days
+    # This makes it so we only have to get these dates one time, as
+    # opposed to finding them every time we need to get the average.
+    last20 = stockutilities.getLast20TradingDays('AAPL')
+
+    for stock in largeStockList:
+        avg = stockformula.getAverageVolumeOver20Days(stock, last20[0],last20[1])
+        if avg > 350000:
+            stockName = stockformula.pullBackSwingTradeFormula(stock)
+        
+            if stockName != '':
+                finalStockList.append(stockName)
+        
+
+    stockutilities.saveToFile(finalStockList)
+    print "ITS FINISHED!"
 
 
 if __name__ == '__main__':

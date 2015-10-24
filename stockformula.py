@@ -1,41 +1,8 @@
 from yahoo_finance import Share
-from pprint import pprint
-
-import finsymbols
 import time
 import datetime
 
-# creates a list of stocks from a provided csv file
-def createListOfStocks():
-    listOfStockNames = []
-    initialAmex = finsymbols.get_amex_symbols()
-    initialNasdaq = finsymbols.get_nasdaq_symbols()
-    initialNyse = finsymbols.get_nyse_symbols()
-    
-    nyse = [stockInfo['symbol'].strip() for stockInfo in initialNyse]
-    nasdaq = [stockInfo['symbol'].strip() for stockInfo in initialNasdaq]
-    amex = [stockInfo['symbol'].strip() for stockInfo in initialAmex]
-    
-    return nasdaq
-
-
-# Returns current day and the 20th trading day before day.
-def getLast20TradingDays(stockName):
-    stock = Share(stockName)
-    currentDay = datetime.date.today()
-    difference = datetime.timedelta(days=100)
-    day = currentDay - difference
-
-    stockData = stock.get_historical(str(day),str(currentDay))
-    if stockData == []:
-        return 0
-    else:
-        return [stockData[0]['Date'], stockData[19]['Date']]
-
-
-
-
-# Average Volume over 20 days...
+# Average Volume over 20 trading days...
 def getAverageVolumeOver20Days(stockName,cur_day,twenty_day):
     stock = Share(stockName)
     stockData = stock.get_historical(str(twenty_day),str(cur_day))
@@ -47,7 +14,7 @@ def getAverageVolumeOver20Days(stockName,cur_day,twenty_day):
             twentyDayVolAvg = twentyDayVolAvg + float(stockData[0]['Volume'])    
     return twentyDayVolAvg / 20
 
- 
+# will return stock data based on the day and the key provided
 def findData(stock, curDay,key):
      data = ()
      dayCount = 1
@@ -66,10 +33,9 @@ def findData(stock, curDay,key):
             
      return data
 
-def findP1Close(stock,curDay):
-    print " "
-
 #****************************************************
+# The main part of the formula
+#
 # Last = This is the lowest price the stock traded at that day
 # PLow = Previous day's low
 # P1Close = Previous day's close
@@ -115,41 +81,3 @@ def pullBackSwingTradeFormula(stockName):
         return stockName
     else:
         return ''
-
-# saves the list of stocks that passed the formula
-# This function appends to a text file so the
-# previous list of stocks will remain.
-def saveToFile(stockList):
-    currentDay = datetime.date.today()
-    file = open("final_stock_list","a")
-    file.write('\n')
-    file.write( "Stock formula run on -> "+ str(currentDay) + '\n')
-    
-    for item in stockList:
-        file.write(item + '\n')
-    file.write('****************************************** \(^_^)/')
-    file.write('\(^_^)/***********************************')
-    
-#***************************************************************
-# combine all stock lists for now.
-# I might make it possible to choose what list to
-# use instead of all 3
-largeStockList = createListOfStocks()
-
-finalStockList = []
-# Use a random stock as a way to find the last 20 trading days
-# This makes it so we only have to get these dates one time, as
-# opposed to finding them every time we need to get the average.
-last20 = getLast20TradingDays('AAPL')
-
-for stock in largeStockList:
-    avg = getAverageVolumeOver20Days(stock, last20[0],last20[1])
-    if avg > 350000:
-        stockName = pullBackSwingTradeFormula(stock)
-        
-        if stockName != '':
-            finalStockList.append(stockName)
-        
-
-saveToFile(finalStockList)
-print "ITS FINISHED!"
