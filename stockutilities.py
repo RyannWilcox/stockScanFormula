@@ -8,7 +8,7 @@ import datetime
 # previous list of stocks will remain.
 def saveToFile(stockList):
     currentDay = datetime.date.today()
-    file = open("final_stock_list","a")
+    file = open("final_stock_list","w")
     file.write('\n')
     file.write( "Stock formula run on -> "+ str(currentDay) + '\n')
     
