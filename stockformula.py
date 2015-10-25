@@ -69,7 +69,15 @@ def pullBackSwingTradeFormula(stockName):
     if stockInfo == []:
         P1Close = 0.0, PLow[1]
     else:
-        P1Close = float(stockInfo[0]['Close']), PLow[1]
+        # had to add this because Yahoo_Finance would randomly
+        # not include 'Close' in the historical dictionary...
+        # This gets around it..
+        try:
+            P1Close = float(stockInfo[0]['Close']), PLow[1]
+        except:
+            print "yahoo sucks... -> ",stockName
+            P1Close = 0.0, PLow[1]
+            
 
     
     P2Close = findData(stock, P1Close,'Close')
