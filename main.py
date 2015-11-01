@@ -7,7 +7,6 @@ import threading
 import time
 
 def main(stockcounter,root):    
-    #time.sleep(10)
     #***************************************************************
     # combine all stock lists for now.
     # I might make it possible to choose what list to
@@ -28,6 +27,8 @@ def main(stockcounter,root):
                 finalStockList.append(stockName)
                 
         stockcounter.updateCompleted()
+        
+        # update the tkinter form
         root.update()
         
     stockutilities.saveToFile(finalStockList)

@@ -9,10 +9,12 @@ class stockcounter:
         self.window = window
         self.totalStocks = totalStocks
         self.currentCount = StringVar()
+        self.currentCount.set("0")
+        
         window.resizable(width=FALSE, height=FALSE)
         window.geometry("150x100")
         window.title("stock count")
-        self.currentCount.set("0")
+        
         self.count = Label(window, justify = LEFT, padx = 50, textvariable = self.currentCount)
         self.count.pack()
         
