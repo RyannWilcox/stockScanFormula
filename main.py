@@ -1,7 +1,13 @@
+from Tkinter import *
+from stockcounter import *
+
 import stockformula
 import stockutilities
+import threading
+import time
 
-def main():
+def main(stockcounter,root):    
+    #time.sleep(10)
     #***************************************************************
     # combine all stock lists for now.
     # I might make it possible to choose what list to
@@ -13,7 +19,6 @@ def main():
     # This makes it so we only have to get these dates one time, as
     # opposed to finding them every time we need to get the average.
     last20 = stockutilities.getLast20TradingDays('AAPL')
-
     for stock in largeStockList:
         avg = stockformula.getAverageVolumeOver20Days(stock, last20[0],last20[1])
         if avg > 350000:
@@ -21,11 +26,20 @@ def main():
         
             if stockName != '':
                 finalStockList.append(stockName)
+                
+        stockcounter.updateCompleted()
+        root.update()
         
-
     stockutilities.saveToFile(finalStockList)
     print "ITS FINISHED!"
 
 
 if __name__ == '__main__':
-    main()
+    root = Tk()
+    largeStockList = stockutilities.createListOfStocks()
+    theStockCounter = stockcounter(root,len(largeStockList))
+    
+    # Now that a frame is involved... we need to make the stock formula
+    # loop in its own thread.  The frame is also in its own thread.
+    GOSTOCKS = threading.Thread(target = main(theStockCounter,root))
+    GOSTOCKS.start()
