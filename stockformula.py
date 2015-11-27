@@ -1,6 +1,7 @@
 from yahoo_finance import Share
 import time
 import datetime
+import stockutilities;
 
 # Average Volume over 20 trading days...
 def getAverageVolumeOver20Days(stockName,cur_day,twenty_day):
@@ -11,11 +12,16 @@ def getAverageVolumeOver20Days(stockName,cur_day,twenty_day):
     if stockData == []:
         return 0       
     for date in stockData:
-            twentyDayVolAvg = twentyDayVolAvg + float(stockData[0]['Volume'])    
+        if not stockutilities.checkForClose(stockData,'Volume'):
+            twentyDayVolAvg = twentyDayVolAvg + float(stockData[0]['Volume'])
+        else:
+            print StockName + " incorrect data sent"
+            twentyDayVolAvg = twentyDayVolAvg + float(0)
+               
     return twentyDayVolAvg / 20
 
 # will return stock data based on the day and the key provided
-def findData(stock, curDay,key):
+def findData(stock, curDay, key):
      data = ()
      dayCount = 1
      check = False
@@ -26,7 +32,10 @@ def findData(stock, curDay,key):
          stockInfo = stock.get_historical(str(day), str(day))
          
          if stockInfo != []:
-             data = float(stockInfo[0][key]), day
+             if not stockutilities.checkForClose(stockInfo, key):
+                 data = float(stockInfo[0][key]), day
+             else:
+                 data = 0.0, day
              check = True
          else:
             dayCount += 1
@@ -55,6 +64,7 @@ def findData(stock, curDay,key):
 def pullBackSwingTradeFormula(stockName):
     stock = Share(stockName)
     currentDay = datetime.date.today()
+    
     #default tuple
     theDay = 0.0 , currentDay
     
@@ -69,16 +79,14 @@ def pullBackSwingTradeFormula(stockName):
     if stockInfo == []:
         P1Close = 0.0, PLow[1]
     else:
-        # had to add this because Yahoo_Finance would randomly
-        # not include 'Close' in the historical dictionary...
-        # This gets around it..
-        try:
+        # call check to see if 'close' is in the
+        # stock info.  Some times the stock info
+        # will be empty because yahoo.
+        if not stockutilities.checkForClose(stockInfo, 'Close'):
             P1Close = float(stockInfo[0]['Close']), PLow[1]
-        except:
-            print "yahoo sucks... -> ",stockName
+        else:
+            print stockName + " incorrect data sent.."
             P1Close = 0.0, PLow[1]
-            
-
     
     P2Close = findData(stock, P1Close,'Close')
     P3Close = findData(stock, P2Close,'Close')
