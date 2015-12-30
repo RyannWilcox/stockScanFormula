@@ -12,12 +12,8 @@ def getAverageVolumeOver20Days(stockName,cur_day,twenty_day):
     if stockData == []:
         return 0       
     for date in stockData:
-        if not stockutilities.checkForClose(stockData,'Volume'):
-            twentyDayVolAvg = twentyDayVolAvg + float(stockData[0]['Volume'])
-        else:
-            print StockName + " incorrect data sent"
-            twentyDayVolAvg = twentyDayVolAvg + float(0)
-               
+        twentyDayVolAvg = twentyDayVolAvg + float(stockData[0]['Volume'])
+                   
     return twentyDayVolAvg / 20
 
 # will return stock data based on the day and the key provided
@@ -32,10 +28,12 @@ def findData(stock, curDay, key):
          stockInfo = stock.get_historical(str(day), str(day))
          
          if stockInfo != []:
-             if not stockutilities.checkForClose(stockInfo, key):
+             try:
                  data = float(stockInfo[0][key]), day
-             else:
+             except:
+                 print "bad data."
                  data = 0.0, day
+                 
              check = True
          else:
             dayCount += 1
@@ -76,15 +74,14 @@ def pullBackSwingTradeFormula(stockName):
     # Had to add an if stmt in here because yahoo_finance
     # would randomly give blank data sets for no reason..
     stockInfo = stock.get_historical(str(PLow[1]), str(PLow[1]))
+    
     if stockInfo == []:
+        print stockName + "Empty query retrieved for " + stockName;
         P1Close = 0.0, PLow[1]
     else:
-        # call check to see if 'close' is in the
-        # stock info.  Some times the stock info
-        # will be empty because yahoo.
-        if not stockutilities.checkForClose(stockInfo, 'Close'):
+        try:
             P1Close = float(stockInfo[0]['Close']), PLow[1]
-        else:
+        except:
             print stockName + " incorrect data sent.."
             P1Close = 0.0, PLow[1]
     
@@ -93,7 +90,7 @@ def pullBackSwingTradeFormula(stockName):
     P4Close = findData(stock, P3Close,'Close')
     
     if (Last[0] > PLow[0]) and (P1Close[0] < P2Close[0]) and (P2Close[0] < P3Close[0]) and (P3Close[0] < P4Close[0]):
-        print  "\(^_^)/ Made it through the formula  " ,stockName
+        print  "\(^_^)/ Made it through the formula  " , stockName
         return stockName
     else:
         return ''

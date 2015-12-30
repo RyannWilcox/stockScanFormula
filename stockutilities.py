@@ -45,15 +45,3 @@ def getLast20TradingDays(stockName):
         return 0
     else:
         return [stockData[0]['Date'], stockData[19]['Date']]
-
-def checkForClose(stockData, keyName):
-    KeyCheck = True;
-    for key in stockData[0]:
-        if key == keyName:
-            KeyCheck = False
-        
-    return KeyCheck   
-    # Check for key 'Close'.  If close is not found
-    # default all values to zero to avoid crashing the
-    # application.
-    
