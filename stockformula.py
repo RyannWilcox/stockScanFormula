@@ -39,7 +39,7 @@ def findData(stock, curDay, key):
             dayCount += 1
             
      return data
-
+     
 #****************************************************
 # The main part of the formula
 #
@@ -62,6 +62,7 @@ def findData(stock, curDay, key):
 def pullBackSwingTradeFormula(stockName):
     stock = Share(stockName)
     currentDay = datetime.date.today()
+    count = 0;
     
     #default tuple
     theDay = 0.0 , currentDay
@@ -79,11 +80,15 @@ def pullBackSwingTradeFormula(stockName):
         print stockName + "Empty query retrieved for " + stockName;
         P1Close = 0.0, PLow[1]
     else:
-        try:
-            P1Close = float(stockInfo[0]['Close']), PLow[1]
-        except:
-            print stockName + " incorrect data sent.."
-            P1Close = 0.0, PLow[1]
+        while count == 0:
+            try:
+                P1Close = float(stockInfo[0]['Close']), PLow[1]
+                count += 1;
+            except:
+                print stockName + " incorrect data sent.."
+                stockInfo = stock.get_historical(str(PLow[1]), str(PLow[1]))
+                #P1Close = 0.0, PLow[1]
+                count = 0;
     
     P2Close = findData(stock, P1Close,'Close')
     P3Close = findData(stock, P2Close,'Close')
