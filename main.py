@@ -6,13 +6,15 @@ import stockutilities
 import threading
 import time
 
-def main(stockcounter,root):    
-    #***************************************************************
-    # combine all stock lists for now.
-    # I might make it possible to choose what list to
-    # use instead of all 3
-    largeStockList = stockutilities.createListOfStocks()
+#***************************************************************
+# combine all stock lists for now.
+# I might make it possible to choose what list to
+# use instead of all 3
+largeStockList = stockutilities.createListOfStocks()
+totalInList = len(largeStockList)
 
+def main(stockcounter,root):    
+    
     finalStockList = []
     # Use a random stock as a way to find the last 20 trading days
     # This makes it so we only have to get these dates one time, as
@@ -27,7 +29,7 @@ def main(stockcounter,root):
                 finalStockList.append(stockName)
                 
         stockcounter.updateCompleted()
-        
+        stockcounter.updatePercent(totalInList)
         # update the tkinter form
         root.update()
         
@@ -37,8 +39,7 @@ def main(stockcounter,root):
 
 if __name__ == '__main__':
     root = Tk()
-    largeStockList = stockutilities.createListOfStocks()
-    theStockCounter = stockcounter(root,len(largeStockList))
+    theStockCounter = stockcounter(root,totalInList)
     
     # Now that a frame is involved... we need to make the stock formula
     # loop in its own thread.  The frame is also in its own thread.
